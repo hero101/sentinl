@@ -1,0 +1,20 @@
+{
+  "id": "sentinl",
+  "owner": {
+    "name": "Mateusz Karkula <mateusz@karkula.pl>"
+  },
+  "version": "8.8.0",
+  "kibanaVersion": "8.8.0",
+  "configPath": [
+    "sentinl"
+  ],
+  "server": true,
+  "ui": true,
+  "requiredPlugins": [
+    "navigation"
+  ],
+  "requiredBundles": [
+    "kibanaReact"
+  ],
+  "optionalPlugins": []
+}

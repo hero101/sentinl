@@ -5,9 +5,9 @@
     "url": "http://github.com/sirensolutions/sentinl.git"
   },
   "name": "sentinl",
-  "version": "6.0.0",
+  "version": "8.8.0",
   "kibana": {
-    "version": "6.2.4"
+    "version": "8.8.0"
   },
   "description": "Kibana Alert & Report App for Elasticsearch",
   "main": "index.js",
@@ -48,8 +48,8 @@
     "node-horseman": "3.3.0",
     "phantom": "6.0.3",
     "puppeteer": "1.5.0",
-    "react": "16.5.2",
-    "react-dom": "^16.5.2",
+    "react": "16.14.0",
+    "react-dom": "^16.14.0",
     "rison": "0.1.1",
     "sanitize-html": "1.18.2",
     "sum-time": "1.0.0",
@@ -62,7 +62,7 @@
     "eslint": "3.14.1",
     "eslint-plugin-mocha": "4.8.0",
     "expect.js": "0.3.1",
-    "gulp": "3.9.1",
+    "gulp": "4.0.0",
     "gulp-eslint": "1.1.1",
     "gulp-util": "3.0.8",
     "gulp-zip": "3.1.0",

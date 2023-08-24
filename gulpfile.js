@@ -106,12 +106,21 @@ function syncPluginTo(dest, done) {
 function applyVersion(path, version) {
   var pkgConfig = JSON.parse(fs.readFileSync(path, 'utf8'));
   pkgConfig.kibana.version = version;
+  console.log('some-test-here', pkgConfig.kibana.version, path)
   fs.writeFileSync(path, JSON.stringify(pkgConfig, null, 2), 'utf8');
 }
 
-gulp.task('sync', ['installPhantomjs'], function (done) {
-  syncPluginTo(kibanaPluginDir, done);
+gulp.task('installPhantomjs', function (done) {
+  installPhantomjs()
+    .then((pkg) => console.log('PhantomJS bin found at: ' + pkg.binary))
+    .catch((err) => console.error('Failed to install PhantomJS: ' + err.toString()))
+    .then(done);
 });
+
+
+gulp.task('sync', gulp.series('installPhantomjs', function (done) {
+  syncPluginTo(kibanaPluginDir, done);
+}));
 
 gulp.task('lint', function (done) {
   return gulp.src([
@@ -135,31 +144,31 @@ gulp.task('clean', function (done) {
   }).nodeify(done);
 });
 
-gulp.task('build', ['clean'], function (done) {
+gulp.task('build', gulp.series('clean', function (done) {
   if (options.version) {
     applyVersion(pathToPkgConfig, options.version);
   }
   syncPluginTo(buildTarget, done);
-});
+}));
 
-gulp.task('package', ['build'], function (done) {
+gulp.task('package', gulp.series('build', function (done) {
   return gulp.src([
     path.join(buildDir, '**', '*'),
     path.join(buildDir, '**/.local-chromium/**/*')
   ])
     .pipe(zip(options.version ? packageName + '-v' + options.version  + '.zip' : packageName + '.zip'))
     .pipe(gulp.dest(targetDir));
-});
+}));
 
-gulp.task('package_nochrome', ['build'], function (done) {
+gulp.task('package_nochrome', gulp.series('build', function (done) {
   return gulp.src([
     path.join(buildDir, '**', '*'),
   ])
     .pipe(zip(options.version ? packageName + '-v' + options.version  + '.zip' : packageName + '.zip'))
     .pipe(gulp.dest(targetDir));
-});
+}));
 
-gulp.task('dev', ['sync'], function (done) {
+gulp.task('dev', gulp.series('sync', function (done) {
   gulp.watch([
     'index.js',
     'init.js',
@@ -167,57 +176,49 @@ gulp.task('dev', ['sync'], function (done) {
     'public/**/*',
     'server/**/*'
   ], ['sync', 'lint']);
-});
+}));
 
-gulp.task('installPhantomjs', function (done) {
-  installPhantomjs()
-    .then((pkg) => console.log('PhantomJS bin found at: ' + pkg.binary))
-    .catch((err) => console.error('Failed to install PhantomJS: ' + err.toString()))
-    .then(done);
-});
-
-
-gulp.task('test', ['sync'], function (done) {
+gulp.task('test', gulp.series('sync', function (done) {
   spawn('grunt', ['test:server', 'test:browser', '--grep=' + (util.env.grep ? util.env.grep : 'Sentinl')], {
     cwd: options.kibanahomepath,
     stdio: 'inherit'
   }).on('error', (err) => {
     throw err;
   }).on('close', done);
-});
+}));
 
-gulp.task('testserver', ['sync'], function (done) {
+gulp.task('testserver', gulp.series('sync', function (done) {
   spawn('grunt', ['test:server', '--grep=' + (util.env.grep ? util.env.grep : 'Sentinl')], {
     cwd: options.kibanahomepath,
     stdio: 'inherit'
   }).on('error', (err) => {
     throw err;
   }).on('close', done);
-});
+}));
 
-gulp.task('testbrowser', ['sync'], function (done) {
+gulp.task('testbrowser', gulp.series('sync', function (done) {
   spawn('grunt', ['test:browser', '--grep=' + (util.env.grep ? util.env.grep : 'Sentinl')], {
     cwd: options.kibanahomepath,
     stdio: 'inherit'
   }).on('error', (err) => {
     throw err;
   }).on('close', done);
-});
+}));
 
-gulp.task('testdev', ['sync'], function (done) {
+gulp.task('testdev', gulp.series('sync', function (done) {
   spawn('grunt', ['test:dev', '--browser=Chrome'], {
     cwd: options.kibanahomepath,
     stdio: 'inherit'
   }).on('error', (err) => {
     throw err;
   }).on('close', done);
-});
+}));
 
-gulp.task('coverage', ['sync'], function (done) {
+gulp.task('coverage', gulp.series('sync', function (done) {
   spawn('grunt', ['test:coverage', '--grep=Sentinl'], {
     cwd: options.kibanahomepath,
     stdio: 'inherit'
   }).on('error', (err) => {
     throw err;
   }).on('close', done);
-});
+}));
